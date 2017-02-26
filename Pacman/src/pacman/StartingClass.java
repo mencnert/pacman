@@ -31,7 +31,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	public void init() {
 
 		setSize(720, 500);// 24[720px]_16[480px]|
-		setBackground(Color.BLACK);
+		setBackground(Color.white);
 		setFocusable(true);
 		addKeyListener(this);
 		Frame frame = (Frame) this.getParent().getParent();
@@ -98,7 +98,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 					case 'B':// block
 						addBlock(j * 30, i * 30);
-						System.out.println(j * 30 + " " + i * 30);
+
 						break;
 
 					case '-':// nothing
@@ -155,23 +155,13 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	public void run() {
 		while (true) {
 			pacman.update();
-			for (int i = 0; i < ghosts.size(); i++) {//po vytvoreni kolize ducha s duchy prestala hra cist ovladani pacmana
+			for (int i = 0; i < ghosts.size(); i++) {
 				Ghost gh = (Ghost) ghosts.get(i);
-				gh.update(pacman.getCenterX(), pacman.getCenterY());// collision
-																	// with
-																	// border
-				for (int j = 0; j < ghosts.size(); j++) {
-					Ghost gh2 = (Ghost) ghosts.get(j);
-					if (i != j) {
-						gh.ghostCollision(pacman.getCenterX(),
-								pacman.getCenterY(), gh2);
-					}
+				gh.update(pacman.getCenterX(),// collision
+						pacman.getCenterY());// with border
+				gh.blockCollision(blocks, pacman.getCenterX(),
+						pacman.getCenterY());
 
-				}
-
-				gh.blockCollision(blocks, pacman.getCenterX(),// collision with
-																// blocks
-						pacman.getCenterY(), ghosts);
 			}
 
 			animate();// set currentPacman and give shut pacman when he stoped
@@ -264,6 +254,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		for (int i = 0; i < ghosts.size(); i++) {
 			Ghost gh = (Ghost) ghosts.get(i);
 			g.drawImage(ghost, gh.getCenterX(), gh.getCenterY(), this);
+			g.drawRect(gh.getCenterX(), gh.getCenterY(), 30, 30);
 		}
 
 	}

@@ -1,5 +1,7 @@
 package pacman;
 
+import java.util.ArrayList;
+
 public class Ghost {
 	private int centerX;
 	private int centerY;
@@ -7,7 +9,8 @@ public class Ghost {
 	private int speedX;
 	private int speedY;
 	private int direction;// 0-nothing; 1-up; 2-down; 3-left; 4-right
-	private int changeDirection;// 0-nothing; 1-up; 2-down; 3-left; 4-right
+	private boolean change = false;
+	private boolean wait;
 
 	public Ghost(int x, int y) {
 		centerX = x;
@@ -16,59 +19,212 @@ public class Ghost {
 		speedX = 0;
 		speedY = 0;
 		direction = 0;
-		changeDirection = 0;
+		
 
 	}
 
-	public void update() {
+	public void update(int pacmanX, int pacmanY) {
 
 		centerX += speedX;
 		centerY += speedY;
 
 		if (centerY + speedY >= 451) {
 			centerY = 450;
-			this.stop();
+			if (pacmanX < centerX) {
+				this.stop();
+				setDirection(3);
+				moveLeft();
+			} else {
+				this.stop();
+				setDirection(4);
+				moveRight();
+			}
 		}
+
 		if (centerY + speedY <= -1) {
 			centerY = 0;
-			this.stop();
+			if (pacmanX < centerX) {
+				this.stop();
+				setDirection(3);
+				moveLeft();
+			} else {
+				this.stop();
+				setDirection(4);
+				moveRight();
+			}
+
 		}
+
 		if (centerX + speedX <= -1) {
 			centerX = 0;
-			this.stop();
+			if (pacmanY < centerY) {
+				this.stop();
+				setDirection(1);
+				moveUp();
+			} else {
+				this.stop();
+				setDirection(2);
+				moveDown();
+			}
 		}
+
 		if (centerX + speedX >= 691) {
 			centerX = 690;
-			this.stop();
+			if (pacmanY < centerY) {
+				this.stop();
+				setDirection(1);
+				moveUp();
+			} else {
+				this.stop();
+				setDirection(2);
+				moveDown();
+			}
 		}
 	}
 
-	public void changeDirection() {
-		if (this.getDirection() != this.getChangeDirection()) {
-			if (this.getCenterX() % 30 < 20 && this.getCenterY() % 30 < 20) {
-				switch (this.getChangeDirection()) {
-				case 1:
-					this.stop();
-					this.setDirection(1);
-					this.moveUp();
+	public void blockCollision(ArrayList<Block> blocks, int pacmanX, int pacmanY) {
+		if (this.getCenterX() % 30 == 0 && this.getCenterY() % 30 == 0) {
+			if(!change){
+				switch (getDirection()) {
+				case 1:// up
+					for (int i = 0; i < blocks.size(); i++) {
+						Block b = (Block) blocks.get(i);
+						if (getCenterX() == b.getX()
+								&& getCenterY() - 30 == b.getY()) {
+							this.stop();
+							change = true;
+						}
+					}
 					break;
-				case 2:
-					this.stop();
-					this.setDirection(2);
-					this.moveDown();
+
+				case 2:// down
+					for (int i = 0; i < blocks.size(); i++) {
+						Block b = (Block) blocks.get(i);
+						if (getCenterX() == b.getX()
+								&& getCenterY() + 30 == b.getY()) {
+							this.stop();
+							change = true;
+						}
+					}
 					break;
-				case 3:
-					this.stop();
-					this.setDirection(3);
-					this.moveLeft();
+				case 3:// left
+					for (int i = 0; i < blocks.size(); i++) {
+						Block b = (Block) blocks.get(i);
+						if (getCenterX() - 30 == b.getX()
+								&& getCenterY() == b.getY()) {
+							this.stop();
+							change = true;
+						}
+					}
 					break;
-				case 4:
-					this.stop();
-					this.setDirection(4);
-					this.moveRight();
+				case 4:// right
+					for (int i = 0; i < blocks.size(); i++) {
+						Block b = (Block) blocks.get(i);
+						if (getCenterX() + 30 == b.getX()
+								&& getCenterY() == b.getY()) {
+							this.stop();
+							change = true;
+						}
+					}
 					break;
 				}
 			}
+			if(wait && getDirection()<3 ){//change axis direction when he is stop() 
+				if(centerX>pacmanX){	//and waiting for change pacmans x or y 
+					setDirection(3);	//and ghost can move
+				}else {
+					setDirection(4);
+				}
+			}else if(wait && getDirection()>2){
+				if(centerY > pacmanY){
+					setDirection(1);
+				}else{
+					setDirection(2);
+				}
+			}
+
+			if (change) {//change direction from up,dowm to left or right and conversely
+				
+				switch (getDirection()) {
+				case 1:// up
+				case 2:// down
+					if (centerX > pacmanX) {
+						for (int i = 0; i < blocks.size(); i++) {
+							Block b = (Block) blocks.get(i);
+							if ((getCenterX()- 30 == b.getX() && getCenterY()  == b
+									.getY())) {
+								wait = true;
+							}
+						}
+						if (!wait) {
+							setDirection(3);
+							moveLeft();
+						}
+					} else{
+
+						for (int i = 0; i < blocks.size(); i++) {
+							Block b = (Block) blocks.get(i);
+							if ((getCenterX()+ 30 == b.getX() && getCenterY()  == b
+									.getY())) {
+								wait = true;
+							}
+						}
+						if (!wait) {
+							setDirection(4);
+							moveRight();
+						}
+
+					}
+					break;
+
+				case 3:// left
+				case 4:// right
+					if (centerY > pacmanY) {
+						for (int i = 0; i < blocks.size(); i++) {
+							Block b = (Block) blocks.get(i);
+							if ((getCenterX() == b.getX() && getCenterY() - 30 == b
+									.getY())) {
+								wait = true;
+							}
+						}
+						if (!wait) {
+							setDirection(1);
+							moveUp();
+						}
+					} else {
+
+						for (int i = 0; i < blocks.size(); i++) {
+							Block b = (Block) blocks.get(i);
+							if ((getCenterX() == b.getX() && getCenterY() + 30 == b
+									.getY())) {
+								wait = true;
+							}
+						}
+						if (!wait) {
+							setDirection(2);
+							moveDown();
+						}
+
+					}
+					break;
+				}
+				change=(wait)?true:false;//optimalization for detection collision with block
+			}
+
+		}
+	}
+
+	public void ghostCollision(ArrayList<Ghost> gh, ArrayList<Ghost> gh2){
+
+	}
+
+	public void chooseStartingDirection(int pacmanX, int pacmanY) {
+		if (pacmanY == centerY) {// up
+			setDirection(1);
+		} else if (pacmanX >= centerX) {// right
+			setDirection(4);
+		} else if (pacmanX < centerX) {// left
+			setDirection(3);
 		}
 	}
 
@@ -131,14 +287,7 @@ public class Ghost {
 
 	public void setDirection(int direction) {
 		this.direction = direction;
-	}
-
-	public int getChangeDirection() {
-		return changeDirection;
-	}
-
-	public void setChangeDirection(int changeDirection) {
-		this.changeDirection = changeDirection;
+		wait = false;
 	}
 
 }

@@ -108,46 +108,46 @@ public class Pacman {
 		}
 	}
 
-	public void blockCollision(ArrayList<Block> blocks){
+	public void blockCollision(ArrayList<Block> blocks) {
 		if (this.getCenterX() % 30 == 0 && this.getCenterY() % 30 == 0) {
-			switch(getDirection()){
-				case 1://up
-					for (int i = 0; i < blocks.size(); i++) {
-						Block b = (Block) blocks.get(i);
-						if (getCenterX() == b.getX() && getCenterY()-30 == b
-								.getY()) {
-							this.stop();
-						}
+			switch (getDirection()) {
+			case 1:// up
+				for (int i = 0; i < blocks.size(); i++) {
+					Block b = (Block) blocks.get(i);
+					if (getCenterX() == b.getX()
+							&& getCenterY() - 30 == b.getY()) {
+						this.stop();
 					}
-					break;
+				}
+				break;
 
-				case 2://down
+			case 2:// down
 				for (int i = 0; i < blocks.size(); i++) {
-						Block b = (Block) blocks.get(i);
-						if (getCenterX() == b.getX() && getCenterY()+30 == b
-								.getY()) {
-							this.stop();
-						}
+					Block b = (Block) blocks.get(i);
+					if (getCenterX() == b.getX()
+							&& getCenterY() + 30 == b.getY()) {
+						this.stop();
 					}
-					break;
-				case 3://left
+				}
+				break;
+			case 3:// left
 				for (int i = 0; i < blocks.size(); i++) {
-						Block b = (Block) blocks.get(i);
-						if (getCenterX()-30 == b.getX() && getCenterY() == b
-								.getY()) {
-							this.stop();
-						}
+					Block b = (Block) blocks.get(i);
+					if (getCenterX() - 30 == b.getX()
+							&& getCenterY() == b.getY()) {
+						this.stop();
 					}
-					break;
-				case 4://right
+				}
+				break;
+			case 4:// right
 				for (int i = 0; i < blocks.size(); i++) {
-						Block b = (Block) blocks.get(i);
-						if (getCenterX()+30 == b.getX() && getCenterY() == b
-								.getY()) {
-							this.stop();
-						}
+					Block b = (Block) blocks.get(i);
+					if (getCenterX() + 30 == b.getX()
+							&& getCenterY() == b.getY()) {
+						this.stop();
 					}
-					break;
+				}
+				break;
 			}
 
 		}

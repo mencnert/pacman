@@ -98,7 +98,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 					case 'B':// block
 						addBlock(j * 30, i * 30);
-						System.out.println(j*30 + " " + i *30);
+						System.out.println(j * 30 + " " + i * 30);
 						break;
 
 					case '-':// nothing
@@ -125,12 +125,12 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}/*
-		for (int i = 0; i < blocks.size(); i++) {
-			Block b = (Block) blocks.get(i);
-			System.out.println(b.getX() + " " + b.getY());
-			
-		}*/
+		}
+		for (int i = 0; i < ghosts.size(); i++) {
+			Ghost gh = (Ghost) ghosts.get(i);
+			gh.chooseStartingDirection(pacman.getCenterX(), pacman.getCenterY());
+
+		}
 
 	}
 
@@ -155,13 +155,21 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	public void run() {
 		while (true) {
 			pacman.update();
+			for (int i = 0; i < ghosts.size(); i++) {
+				Ghost gh = (Ghost) ghosts.get(i);
+				gh.update(pacman.getCenterX(), pacman.getCenterY());// collision with border
+				gh.blockCollision(blocks, pacman.getCenterX(),//collision with blocks
+						pacman.getCenterY());
+			}
+
 			animate();// set currentPacman and give shut pacman when he stoped
 			pacmanPointColision();
 			pacmanBlockColision();
 			repaint();
 
-			//System.out.println(score);
-			//System.out.println(pacman.getCenterX() + " " +pacman.getCenterY());
+			// System.out.println(score);
+			// System.out.println(pacman.getCenterX() + " "
+			// +pacman.getCenterY());
 			try {
 				Thread.sleep(17);
 			} catch (InterruptedException e) {
@@ -277,6 +285,26 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 				break;
 
 			}
+
+			for (int i = 0; i < ghosts.size(); i++) {
+				Ghost gh = (Ghost) ghosts.get(i);
+
+				switch (gh.getDirection()) {
+				case 1:
+					gh.moveUp();
+					break;
+				case 2:
+					gh.moveDown();
+					break;
+				case 3:
+					gh.moveLeft();
+					break;
+				case 4:
+					gh.moveRight();
+				}
+
+			}
+
 		} else {
 			switch (e.getKeyCode()) {
 			case KeyEvent.VK_UP:
@@ -359,6 +387,5 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	public void pacmanBlockColision() {
 		pacman.changeDirection(blocks);
 		pacman.blockCollision(blocks);
-		
 	}
 }

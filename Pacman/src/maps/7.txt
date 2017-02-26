@@ -1,0 +1,16 @@
+G....B.....B.....B.....G
+.B.B...B.B.B.B.B...B.BB.
+.B.B.B.B.B.B.B.BBB.B.BB.
+.B...B.............B.BB.
+.B.B.BBB.BBBBB.B.B.B....
+...B.....B.....B...BBB..
+..BB.B.B...B.B.B.B.BBB.B
+...B.B.BB....B...B...B.B
+BB.B.B...BBBBBBB.BBB.B.B
+.B.....B.....B.....B.B..
+.BBBBB.B.B.B.B.B.B.B....
+.....B...B.B.B.B.B.B.BBB
+.B.B...BBB.B.B.B.B.B....
+.B.BBB.B...B.B.B.B.B.B.B
+.B...B.B.B.B.B.B.B.B.B.B
+G..B.....B..P....B.....G

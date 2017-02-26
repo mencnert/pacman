@@ -27,39 +27,25 @@ public class Ghost {
 	public void update(int pacmanX, int pacmanY) {
 		centerX += speedX;
 		centerY += speedY;
+
 		if (centerY + speedY >= 451) {
 			centerY = 450;
 			chooseDirection(pacmanX, pacmanY);
-
 		} else if (centerY + speedY <= -1) {
 			centerY = 0;
 			chooseDirection(pacmanX, pacmanY);
-
 		} else if (centerX + speedX <= -1) {
 			centerX = 0;
 			chooseDirection(pacmanX, pacmanY);
-
 		} else if (centerX + speedX >= 691) {
 			centerX = 690;
 			chooseDirection(pacmanX, pacmanY);
 		}
 
-		updateRect();
+		updateRect();// update position of rectangle
 	}
 
-	public void blockCollision(ArrayList<Block> blocks, int pacmanX, int pacmanY) {
-		for (int i = 0; i < blocks.size(); i++) {
-			Block b = (Block) blocks.get(i);
-			if (rect.intersects(b.getRect())) {
-				chooseDirectionAfterBlockCollision(pacmanX, pacmanY);
-
-			}
-
-		}
-	}
-
-	public void ghostCollision(ArrayList<Ghost> ghosts,
-			ArrayList<Block> blocks, int j, int pacmanX, int pacmanY) {
+	public void ghostCollision(ArrayList<Ghost> ghosts, ArrayList<Block> blocks, int j, int pacmanX, int pacmanY) {
 		for (int i = 0; i < ghosts.size(); i++) {
 			Ghost gh = (Ghost) ghosts.get(i);
 			if (i != j) {
@@ -69,8 +55,16 @@ public class Ghost {
 				}
 			}
 		}
-
 		blockCollision(blocks, pacmanX, pacmanY);
+	}
+
+	public void blockCollision(ArrayList<Block> blocks, int pacmanX, int pacmanY) {
+		for (int i = 0; i < blocks.size(); i++) {
+			Block b = (Block) blocks.get(i);
+			if (rect.intersects(b.getRect())) {
+				chooseDirectionAfterBlockCollision(pacmanX, pacmanY);
+			}
+		}
 	}
 
 	public void setXYAfterGhostCollision() {
@@ -93,6 +87,7 @@ public class Ghost {
 
 	public void chooseDirection(int pacmanX, int pacmanY) {
 		stop();
+
 		switch (getDirection()) {
 		case 1:
 		case 2:
@@ -118,7 +113,6 @@ public class Ghost {
 	}
 
 	public void chooseDirectionAfterBlockCollision(int pacmanX, int pacmanY) {
-
 		switch (getDirection()) {
 		case 1:
 			centerY += 3;
@@ -133,6 +127,7 @@ public class Ghost {
 			centerX -= 3;
 			break;
 		}
+
 		updateRect();
 		chooseDirection(pacmanX, pacmanY);
 	}
@@ -215,13 +210,11 @@ public class Ghost {
 	public Rectangle getRect() {
 		return rect;
 	}
-	
-	public void setGhostToStartingPosition(){
+
+	public void setGhostToStartingPosition() {
 		centerX = startingCenterX;
 		centerY = startingCenterY;
 		stop();
 		setDirection(0);
-		
 	}
-
 }

@@ -31,5 +31,4 @@ public class Block {
 	public Rectangle getRect() {
 		return rect;
 	}
-
 }

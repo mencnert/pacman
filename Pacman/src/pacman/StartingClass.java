@@ -23,7 +23,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	private Graphics second;
 	private URL base;
 	private Animation animRight, animUp, animLeft, animDown;
-	private int animSpeed = 5, score = 0;
+	private int animSpeed = 5, score = 0, level = 1;
 	private ArrayList<Point> points = new ArrayList<Point>();
 	private ArrayList<Block> blocks = new ArrayList<Block>();
 	private ArrayList<Ghost> ghosts = new ArrayList<Ghost>();
@@ -83,56 +83,6 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		block = getImage(base, "data/block.png");
 		ghost = getImage(base, "data/ghost.png");
 
-		try {
-			BufferedReader fo = new BufferedReader(new FileReader("maps/1.txt"));
-			String a;
-			char b;
-			for (int i = 0; i < 16; i++) {// i is for axis x
-				String mapLine = fo.readLine();
-				for (int j = 0; j < 24; j++) {// j is for axis y
-					a = mapLine.substring(j, j + 1);
-					b = a.charAt(0);
-					switch (b) {
-					case '.':// point
-						addPoint(j * 30, i * 30);
-						break;
-
-					case 'B':// block
-						addBlock(j * 30, i * 30);
-
-						break;
-
-					case '-':// nothing
-						break;
-
-					case 'G':// ghost
-						addGhost(j * 30, i * 30);
-						addPoint(j * 30, i * 30);
-						break;
-
-					case 'P':// pacman
-						pacman = new Pacman();
-						pacman.setCenterX(j * 30);
-						pacman.setCenterY(i * 30);
-						break;
-
-					}
-				}
-			}
-			fo.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		for (int i = 0; i < ghosts.size(); i++) {
-			Ghost gh = (Ghost) ghosts.get(i);
-			gh.chooseStartingDirection(pacman.getCenterX(), pacman.getCenterY());
-
-		}
-
 	}
 
 	@Override
@@ -154,6 +104,8 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	@Override
 	public void run() {
+		loadMap(((level % 10) != 0) ? level % 10 : 10);
+
 		while (true) {
 			pacman.update();
 			for (int i = 0; i < ghosts.size(); i++) {
@@ -161,13 +113,15 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 				gh.update(pacman.getCenterX(),// collision
 						pacman.getCenterY());// with border
-				
+
 				gh.ghostCollision(ghosts, blocks, i, pacman.getCenterX(),
 						pacman.getCenterY());
 
-				
+				if (pacman.getRect().intersects(gh.getRect())) {// pacmans death
+					reloadLevel(ghosts);
+				}
+
 			}
-			
 
 			animate();// set currentPacman and give shut pacman when he stoped
 			pacmanPointColision();
@@ -198,6 +152,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		case 3:
 			currentPacman = animLeft.getImage();
 			break;
+
 		case 4:
 			currentPacman = animRight.getImage();
 			break;
@@ -214,6 +169,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			case 3:
 				currentPacman = animLeft.getImage(0);
 				break;
+			case 0:
 			case 4:
 				currentPacman = animRight.getImage(0);
 				break;
@@ -256,6 +212,9 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		for (int i = 0; i < ghosts.size(); i++) {
 			Ghost gh = (Ghost) ghosts.get(i);
 			g.drawImage(ghost, gh.getCenterX(), gh.getCenterY(), this);
+			// g.drawRect(gh.getCenterX(), gh.getCenterY(), 30, 30);
+			// g.drawRect(pacman.getCenterX() + 9, pacman.getCenterY() + 9, 12,
+			// 12);
 		}
 
 	}
@@ -265,27 +224,31 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		if (pacman.getDirection() == 0) {// for start game
 			switch (e.getKeyCode()) {
 			case KeyEvent.VK_UP:
-
-				pacman.setDirection(1);
-				pacman.moveUp();
+				if (pacman.getCanUp()) {
+					pacman.setDirection(1);
+					pacman.moveUp();
+				}
 				break;
 
 			case KeyEvent.VK_DOWN:
-
-				pacman.setDirection(2);
-				pacman.moveDown();
+				if (pacman.getCanDown()) {
+					pacman.setDirection(2);
+					pacman.moveDown();
+				}
 				break;
 
 			case KeyEvent.VK_LEFT:
-
-				pacman.setDirection(3);
-				pacman.moveLeft();
+				if (pacman.getCanLeft()) {
+					pacman.setDirection(3);
+					pacman.moveLeft();
+				}
 				break;
 
 			case KeyEvent.VK_RIGHT:
-
-				pacman.setDirection(4);
-				pacman.moveRight();
+				if (pacman.getCanRight()) {
+					pacman.setDirection(4);
+					pacman.moveRight();
+				}
 				break;
 
 			}
@@ -391,5 +354,98 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	public void pacmanBlockColision() {
 		pacman.changeDirection(blocks);
 		pacman.blockCollision(blocks);
+	}
+
+	public void loadMap(int level) {
+		try {
+			BufferedReader fo = new BufferedReader(new FileReader("maps/"
+					+ level + ".txt"));
+			String a;
+			char b;
+			for (int i = 0; i < 16; i++) {// i is for axis x
+				String mapLine = fo.readLine();
+				for (int j = 0; j < 24; j++) {// j is for axis y
+					a = mapLine.substring(j, j + 1);
+					b = a.charAt(0);
+					switch (b) {
+					case '.':// point
+						addPoint(j * 30, i * 30);
+						break;
+
+					case 'B':// block
+						addBlock(j * 30, i * 30);
+
+						break;
+
+					case '-':// nothing
+						break;
+
+					case 'G':// ghost
+						addGhost(j * 30, i * 30);
+						addPoint(j * 30, i * 30);
+						break;
+
+					case 'P':// pacman
+						pacman = new Pacman(j * 30, i * 30);
+						// pacman.setCenterX(j * 30);
+						// pacman.setCenterY(i * 30);
+						break;
+
+					}
+				}
+			}
+			fo.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		for (int i = 0; i < ghosts.size(); i++) {
+			Ghost gh = (Ghost) ghosts.get(i);
+			gh.chooseStartingDirection(pacman.getCenterX(), pacman.getCenterY());
+		}
+
+		Rectangle pacmanRect = new Rectangle(0, 0, 0, 0);
+
+		for (int i = 0; i < blocks.size(); i++) {
+			Block block = (Block) blocks.get(i);
+			// up
+			pacmanRect.setRect(pacman.getCenterX(), pacman.getCenterY() - 30,
+					30, 30);
+			if (pacmanRect.intersects(block.getRect())) {
+				pacman.setCanUp(false);
+			}
+			// down
+			pacmanRect.setRect(pacman.getCenterX(), pacman.getCenterY() + 30,
+					30, 30);
+			if (pacmanRect.intersects(block.getRect())) {
+				pacman.setCanDown(false);
+			}
+			// left
+			pacmanRect.setRect(pacman.getCenterX() - 30, pacman.getCenterY(),
+					30, 30);
+			if (pacmanRect.intersects(block.getRect())) {
+				pacman.setCanLeft(false);
+			}
+			// right
+			pacmanRect.setRect(pacman.getCenterX() + 30, pacman.getCenterY(),
+					30, 30);
+			if (pacmanRect.intersects(block.getRect())) {
+				pacman.setCanRight(false);
+			}
+
+		}
+	}
+
+	public void reloadLevel(ArrayList<Ghost> ghosts) {
+		pacman.setPacmanToStartingPosition();
+		for (int i = 0; i < ghosts.size(); i++) {
+			Ghost gh = (Ghost) ghosts.get(i);
+			gh.setGhostToStartingPosition();
+			gh.chooseStartingDirection(pacman.getCenterX(), pacman.getCenterY());
+		}
 	}
 }

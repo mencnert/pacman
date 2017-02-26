@@ -6,7 +6,8 @@ import java.util.ArrayList;
 public class Ghost {
 	private int centerX;
 	private int centerY;
-	private int SPEED=3;
+	private int startingCenterX, startingCenterY;
+	private int SPEED = 3;
 	private int speedX;
 	private int speedY;
 	private int direction;// 0-nothing; 1-up; 2-down; 3-left; 4-right
@@ -15,6 +16,8 @@ public class Ghost {
 	public Ghost(int x, int y) {
 		centerX = x;
 		centerY = y;
+		startingCenterX = x;
+		startingCenterY = y;
 		speedX = 0;
 		speedY = 0;
 		direction = 0;
@@ -22,26 +25,26 @@ public class Ghost {
 	}
 
 	public void update(int pacmanX, int pacmanY) {
-			centerX += speedX;
-			centerY += speedY;
-			if (centerY + speedY >= 451) {
-				centerY = 450;
-				chooseDirection(pacmanX, pacmanY);
+		centerX += speedX;
+		centerY += speedY;
+		if (centerY + speedY >= 451) {
+			centerY = 450;
+			chooseDirection(pacmanX, pacmanY);
 
-			} else if (centerY + speedY <= -1) {
-				centerY = 0;
-				chooseDirection(pacmanX, pacmanY);
+		} else if (centerY + speedY <= -1) {
+			centerY = 0;
+			chooseDirection(pacmanX, pacmanY);
 
-			} else if (centerX + speedX <= -1) {
-				centerX = 0;
-				chooseDirection(pacmanX, pacmanY);
+		} else if (centerX + speedX <= -1) {
+			centerX = 0;
+			chooseDirection(pacmanX, pacmanY);
 
-			} else if (centerX + speedX >= 691) {
-				centerX = 690;
-				chooseDirection(pacmanX, pacmanY);
-			}
-			
-			updateRect();
+		} else if (centerX + speedX >= 691) {
+			centerX = 690;
+			chooseDirection(pacmanX, pacmanY);
+		}
+
+		updateRect();
 	}
 
 	public void blockCollision(ArrayList<Block> blocks, int pacmanX, int pacmanY) {
@@ -49,16 +52,14 @@ public class Ghost {
 			Block b = (Block) blocks.get(i);
 			if (rect.intersects(b.getRect())) {
 				chooseDirectionAfterBlockCollision(pacmanX, pacmanY);
-				
+
 			}
 
 		}
 	}
 
-	
-
-	public void ghostCollision(ArrayList<Ghost> ghosts, ArrayList<Block> blocks, int j, int pacmanX,
-			int pacmanY) {
+	public void ghostCollision(ArrayList<Ghost> ghosts,
+			ArrayList<Block> blocks, int j, int pacmanX, int pacmanY) {
 		for (int i = 0; i < ghosts.size(); i++) {
 			Ghost gh = (Ghost) ghosts.get(i);
 			if (i != j) {
@@ -68,7 +69,7 @@ public class Ghost {
 				}
 			}
 		}
-		
+
 		blockCollision(blocks, pacmanX, pacmanY);
 	}
 
@@ -206,9 +207,21 @@ public class Ghost {
 	public void setDirection(int direction) {
 		this.direction = direction;
 	}
-	
-	public void updateRect(){
+
+	public void updateRect() {
 		rect.setRect(centerX, centerY, 30, 30);
+	}
+
+	public Rectangle getRect() {
+		return rect;
+	}
+	
+	public void setGhostToStartingPosition(){
+		centerX = startingCenterX;
+		centerY = startingCenterY;
+		stop();
+		setDirection(0);
+		
 	}
 
 }

@@ -1,16 +1,35 @@
 package pacman;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 public class Pacman {
 	private int centerX = 0;
 	private int centerY = 0;
+	private int startingCenterX, startingCenterY;
 	private int SPEED = 3;
 	private int speedX = 0;
 	private int speedY = 0;
 	private int direction = 0;// 0-nothing; 1-up; 2-down; 3-left; 4-right
 	private int changeDirection = 0;// 0-nothing; 1-up; 2-down; 3-left; 4-right
 	public boolean wait = false;
+	private Rectangle rect = new Rectangle(0, 0, 0, 0);
+	private boolean canUp, canLeft, canRight, canDown;
+	
+	public Pacman(int x, int y){
+		centerX = x;
+		centerY = y;
+		startingCenterX = x;
+		startingCenterY = y;
+		speedX = 0;
+		speedY = 0;
+		direction = 0;
+		updateRect();
+		canUp = true;
+		canDown = true;
+		canRight = true;
+		canLeft = true;
+	}
 
 	public void update() {
 
@@ -33,6 +52,8 @@ public class Pacman {
 			centerX = 690;
 			this.stop();
 		}
+
+		updateRect();
 
 	}
 
@@ -220,6 +241,55 @@ public class Pacman {
 
 	public void setChangeDirection(int changeDirection) {
 		this.changeDirection = changeDirection;
+	}
+
+	public void updateRect() {
+		rect.setRect(centerX + 9, centerY+9, 12, 12);//(30-12)/2=9
+	}
+
+	public Rectangle getRect() {
+		return rect;
+	}
+	
+	public void setPacmanToStartingPosition(){
+		centerX = startingCenterX;
+		centerY = startingCenterY;
+		stop();
+		setDirection(0);
+		setChangeDirection(0);
+		
+	}
+
+	public boolean getCanUp() {
+		return canUp;
+	}
+
+	public boolean getCanLeft() {
+		return canLeft;
+	}
+
+	public boolean getCanRight() {
+		return canRight;
+	}
+
+	public boolean getCanDown() {
+		return canDown;
+	}
+
+	public void setCanUp(boolean canUp) {
+		this.canUp = canUp;
+	}
+
+	public void setCanLeft(boolean canLeft) {
+		this.canLeft = canLeft;
+	}
+
+	public void setCanRight(boolean canRight) {
+		this.canRight = canRight;
+	}
+
+	public void setCanDown(boolean canDown) {
+		this.canDown = canDown;
 	}
 
 }

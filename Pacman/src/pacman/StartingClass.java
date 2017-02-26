@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedReader;
@@ -31,7 +32,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	public void init() {
 
 		setSize(720, 500);// 24[720px]_16[480px]|
-		setBackground(Color.white);
+		setBackground(Color.black);
 		setFocusable(true);
 		addKeyListener(this);
 		Frame frame = (Frame) this.getParent().getParent();
@@ -157,25 +158,22 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			pacman.update();
 			for (int i = 0; i < ghosts.size(); i++) {
 				Ghost gh = (Ghost) ghosts.get(i);
-				//gh.isStoped();
+
 				gh.update(pacman.getCenterX(),// collision
 						pacman.getCenterY());// with border
 				
-				gh.ghostCollision(ghosts, i, pacman.getCenterX(),
+				gh.ghostCollision(ghosts, blocks, i, pacman.getCenterX(),
 						pacman.getCenterY());
-				gh.blockCollision(blocks, pacman.getCenterX(),
-						pacman.getCenterY());
+
 				
 			}
+			
 
 			animate();// set currentPacman and give shut pacman when he stoped
 			pacmanPointColision();
 			pacmanBlockColision();
 			repaint();
 
-			// System.out.println(score);
-			// System.out.println(pacman.getCenterX() + " "
-			// +pacman.getCenterY());
 			try {
 				Thread.sleep(17);
 			} catch (InterruptedException e) {
@@ -258,7 +256,6 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		for (int i = 0; i < ghosts.size(); i++) {
 			Ghost gh = (Ghost) ghosts.get(i);
 			g.drawImage(ghost, gh.getCenterX(), gh.getCenterY(), this);
-			g.drawRect(gh.getCenterX(), gh.getCenterY(), 30, 30);
 		}
 
 	}

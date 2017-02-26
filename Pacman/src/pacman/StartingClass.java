@@ -41,32 +41,32 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		animLeft = new Animation();
 		animDown = new Animation();
 		// load images for right direction
-		animRight.addFrame(getImage(base, "data/pstop.png"), animSpeed);
-		animRight.addFrame(getImage(base, "data/pright1.png"), animSpeed);
-		animRight.addFrame(getImage(base, "data/pright2.png"), animSpeed);
-		animRight.addFrame(getImage(base, "data/pright3.png"), animSpeed);
-		animRight.addFrame(getImage(base, "data/pright4.png"), animSpeed);
+		animRight.addFrame(getImage(base, "data/rightstop.png"), animSpeed);
+		animRight.addFrame(getImage(base, "data/right1.png"), animSpeed);
+		animRight.addFrame(getImage(base, "data/right2.png"), animSpeed);
+		animRight.addFrame(getImage(base, "data/right3.png"), animSpeed);
+		animRight.addFrame(getImage(base, "data/right4.png"), animSpeed);
 
 		// load images for left direction
-		animLeft.addFrame(getImage(base, "data/pstop.png"), animSpeed);
-		animLeft.addFrame(getImage(base, "data/pleft1.png"), animSpeed);
-		animLeft.addFrame(getImage(base, "data/pleft2.png"), animSpeed);
-		animLeft.addFrame(getImage(base, "data/pleft3.png"), animSpeed);
-		animLeft.addFrame(getImage(base, "data/pleft4.png"), animSpeed);
+		animLeft.addFrame(getImage(base, "data/leftstop.png"), animSpeed);
+		animLeft.addFrame(getImage(base, "data/left1.png"), animSpeed);
+		animLeft.addFrame(getImage(base, "data/left2.png"), animSpeed);
+		animLeft.addFrame(getImage(base, "data/left3.png"), animSpeed);
+		animLeft.addFrame(getImage(base, "data/left4.png"), animSpeed);
 
 		// load images for up direction
-		animUp.addFrame(getImage(base, "data/pstop.png"), animSpeed);
-		animUp.addFrame(getImage(base, "data/pup1.png"), animSpeed);
-		animUp.addFrame(getImage(base, "data/pup2.png"), animSpeed);
-		animUp.addFrame(getImage(base, "data/pup3.png"), animSpeed);
-		animUp.addFrame(getImage(base, "data/pup4.png"), animSpeed);
+		animUp.addFrame(getImage(base, "data/upstop.png"), animSpeed);
+		animUp.addFrame(getImage(base, "data/up1.png"), animSpeed);
+		animUp.addFrame(getImage(base, "data/up2.png"), animSpeed);
+		animUp.addFrame(getImage(base, "data/up3.png"), animSpeed);
+		animUp.addFrame(getImage(base, "data/up4.png"), animSpeed);
 
 		// load images for down direction
-		animDown.addFrame(getImage(base, "data/pstop.png"), animSpeed);
-		animDown.addFrame(getImage(base, "data/pdown1.png"), animSpeed);
-		animDown.addFrame(getImage(base, "data/pdown2.png"), animSpeed);
-		animDown.addFrame(getImage(base, "data/pdown3.png"), animSpeed);
-		animDown.addFrame(getImage(base, "data/pdown4.png"), animSpeed);
+		animDown.addFrame(getImage(base, "data/downstop.png"), animSpeed);
+		animDown.addFrame(getImage(base, "data/down1.png"), animSpeed);
+		animDown.addFrame(getImage(base, "data/down2.png"), animSpeed);
+		animDown.addFrame(getImage(base, "data/down3.png"), animSpeed);
+		animDown.addFrame(getImage(base, "data/down4.png"), animSpeed);
 
 		currentPacman = animRight.getImage();
 
@@ -109,8 +109,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 				break;
 			}
 			animate();
-			
-			
+
 			repaint();
 
 			try {
@@ -126,8 +125,22 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		animLeft.update(2);
 		animUp.update(2);
 		animDown.update(2);
-		if(pacman.getSpeedX()==0 && pacman.getSpeedY()==0){
-			currentPacman = animRight.getImage(0);
+		if (pacman.getSpeedX() == 0 && pacman.getSpeedY() == 0) {
+			
+			switch (pacman.getDirection()) {
+			case 1:
+				currentPacman = animUp.getImage(0);
+				break;
+			case 2:
+				currentPacman = animDown.getImage(0);
+				break;
+			case 3:
+				currentPacman = animLeft.getImage(0);
+				break;
+			case 4:
+				currentPacman = animRight.getImage(0);
+				break;
+			}
 		}
 	}
 

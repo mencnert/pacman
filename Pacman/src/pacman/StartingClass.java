@@ -8,21 +8,29 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	private Pacman pacman;
-	private Image image, currentPacman;
+	private Image image, currentPacman, point, ghost, block;
 	private Graphics second;
 	private URL base;
 	private Animation animRight, animUp, animLeft, animDown;
-	private int animSpeed = 10;
+	private int animSpeed = 5, score = 0;
+	private ArrayList<Point> points = new ArrayList<Point>();
+	private ArrayList<Block> blocks = new ArrayList<Block>();
+	private ArrayList<Ghost> ghosts = new ArrayList<Ghost>();
 
 	@Override
 	public void init() {
 
-		setSize(800, 480);
+		setSize(720, 500);// 24[720px]_16[480px]|
 		setBackground(Color.BLACK);
 		setFocusable(true);
 		addKeyListener(this);
@@ -70,11 +78,58 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 		currentPacman = animRight.getImage();
 
+		point = getImage(base, "data/point.png");
+		block = getImage(base, "data/block.png");
+		ghost = getImage(base, "data/ghost.png");
+
+		try {
+			BufferedReader fo = new BufferedReader(new FileReader("maps/1.txt"));
+			String a;
+			char b;
+			for (int i = 0; i < 16; i++) {// i is for axis x
+				String mapLine = fo.readLine();
+				for (int j = 0; j < 24; j++) {// j is for axis y
+					a = mapLine.substring(j, j + 1);
+					b = a.charAt(0);
+					switch (b) {
+					case '.':// point
+						addPoint(j * 30, i * 30);
+						break;
+
+					case 'B':// block
+						addBlock(j * 30, i * 30);
+						break;
+
+					case '-':// nothing
+						break;
+
+					case 'G':// ghost
+						addGhost(j * 30, i * 30);
+						addPoint(j * 30, i * 30);
+						break;
+
+					case 'P':// pacman
+						pacman = new Pacman();
+						pacman.setCenterX(j * 30);
+						pacman.setCenterY(i * 30);
+						break;
+
+					}
+				}
+			}
+			fo.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
 	public void start() {
-		pacman = new Pacman();
 
 		Thread thread = new Thread(this);
 		thread.start();
@@ -94,24 +149,14 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	public void run() {
 		while (true) {
 			pacman.update();
-			switch (pacman.getDirection()) {
-			case 1:
-				currentPacman = animUp.getImage();
-				break;
-			case 2:
-				currentPacman = animDown.getImage();
-				break;
-			case 3:
-				currentPacman = animLeft.getImage();
-				break;
-			case 4:
-				currentPacman = animRight.getImage();
-				break;
-			}
-			animate();
-
+			animate();// set currentPacman and give shut pacman when he stoped
+			pacmanPointColision();
 			repaint();
 
+			pacman.changeDirection();
+			System.out.println(score);
+			// System.out.println(pacman.getCenterX() + " " +
+			// pacman.getCenterY());
 			try {
 				Thread.sleep(17);
 			} catch (InterruptedException e) {
@@ -120,13 +165,28 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		}
 	}
 
-	public void animate() {
+	public void animate() {// set currentPacman and give shut pacman when he
+							// stoped
 		animRight.update(2);
 		animLeft.update(2);
 		animUp.update(2);
 		animDown.update(2);
+		switch (pacman.getDirection()) {
+		case 1:
+			currentPacman = animUp.getImage();
+			break;
+		case 2:
+			currentPacman = animDown.getImage();
+			break;
+		case 3:
+			currentPacman = animLeft.getImage();
+			break;
+		case 4:
+			currentPacman = animRight.getImage();
+			break;
+		}
 		if (pacman.getSpeedX() == 0 && pacman.getSpeedY() == 0) {
-			
+
 			switch (pacman.getDirection()) {
 			case 1:
 				currentPacman = animUp.getImage(0);
@@ -163,38 +223,74 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	@Override
 	public void paint(Graphics g) {
 
-		g.drawImage(currentPacman, pacman.getCenterX() - 61,
-				pacman.getCenterY() - 63, this);
+		for (int i = 0; i < points.size(); i++) {
+			Point p = (Point) points.get(i);
+			g.drawImage(point, p.getX() + 7, p.getY() + 7, this);
+		}
+
+		for (int i = 0; i < blocks.size(); i++) {
+			Block b = (Block) blocks.get(i);
+			g.drawImage(block, b.getX(), b.getY(), this);
+		}
+
+		g.drawImage(currentPacman, pacman.getCenterX(), pacman.getCenterY(),
+				this);
+
+		for (int i = 0; i < ghosts.size(); i++) {
+			Ghost gh = (Ghost) ghosts.get(i);
+			g.drawImage(ghost, gh.getCenterX(), gh.getCenterY(), this);
+		}
+
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		if (pacman.getDirection() == 0) {// for start game
+			switch (e.getKeyCode()) {
+			case KeyEvent.VK_UP:
 
-		switch (e.getKeyCode()) {
-		case KeyEvent.VK_UP:
-			pacman.stop();
-			pacman.setDirection(1);
-			pacman.moveUp();
-			break;
+				pacman.setDirection(1);
+				pacman.moveUp();
+				break;
 
-		case KeyEvent.VK_DOWN:
-			pacman.stop();
-			pacman.setDirection(2);
-			pacman.moveDown();
-			break;
+			case KeyEvent.VK_DOWN:
 
-		case KeyEvent.VK_LEFT:
-			pacman.stop();
-			pacman.setDirection(3);
-			pacman.moveLeft();
-			break;
+				pacman.setDirection(2);
+				pacman.moveDown();
+				break;
 
-		case KeyEvent.VK_RIGHT:
-			pacman.stop();
-			pacman.setDirection(4);
-			pacman.moveRight();
-			break;
+			case KeyEvent.VK_LEFT:
 
+				pacman.setDirection(3);
+				pacman.moveLeft();
+				break;
+
+			case KeyEvent.VK_RIGHT:
+
+				pacman.setDirection(4);
+				pacman.moveRight();
+				break;
+
+			}
+		} else {
+			switch (e.getKeyCode()) {
+			case KeyEvent.VK_UP:
+				pacman.setChangeDirection(1);
+				break;
+
+			case KeyEvent.VK_DOWN:
+				pacman.setChangeDirection(2);
+				break;
+
+			case KeyEvent.VK_LEFT:
+				pacman.setChangeDirection(3);
+				break;
+
+			case KeyEvent.VK_RIGHT:
+				pacman.setChangeDirection(4);
+				break;
+
+			}
 		}
 
 	}
@@ -226,6 +322,33 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void addPoint(int x, int y) {
+		Point p = new Point(x, y);
+		points.add(p);
+	}
+
+	public void addBlock(int x, int y) {
+		Block b = new Block(x, y);
+		blocks.add(b);
+	}
+
+	public void addGhost(int x, int y) {
+		Ghost gh = new Ghost(x, y);
+		ghosts.add(gh);
+	}
+
+	public void pacmanPointColision() {
+
+		for (int i = 0; i < points.size(); i++) {
+			Point p = (Point) points.get(i);
+			if (pacman.getCenterX() == p.getX()
+					&& pacman.getCenterY() == p.getY()) {
+				points.remove(i);
+				score += 10;
+			}
+		}
 	}
 
 }

@@ -11,25 +11,30 @@ import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
 
 public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	private Pacman pacman;
-	private Image image, currentPacman, deathPacman, deathPacman2, point,
-			ghost, block;
+	private Image image, currentPacman, deadPacman, deadPacman2, point,
+			ghost, block, gameOver, paused;
 	private Graphics second;
 	private URL base;
 	private Animation animRight, animUp, animLeft, animDown;
-	private boolean isStoped = false;
-	private int startLives = 4;
-	private int animSpeed = 5, score = 0, bestScore = 12, level = 0,
+	private boolean pacmanIsDead = false, pause = false;
+	private int startLives = 1;
+	private int animSpeed = 5, score = 0, bestScore = 0, level = 0,
 			lives = startLives;
-	private String bestPlayer="men";
+	private String bestPlayer = null;
 	private ArrayList<Point> points = new ArrayList<Point>();
 	private ArrayList<Block> blocks = new ArrayList<Block>();
 	private ArrayList<Ghost> ghosts = new ArrayList<Ghost>();
@@ -89,8 +94,18 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		point = getImage(base, "data/point.png");
 		block = getImage(base, "data/block.png");
 		ghost = getImage(base, "data/ghost.png");
-		deathPacman = getImage(base, "data/deathpacman.png");
-		deathPacman2 = getImage(base, "data/deathpacman2.png");
+		deadPacman = getImage(base, "data/deadpacman.png");
+		deadPacman2 = getImage(base, "data/deadpacman2.png");
+		gameOver = getImage(base, "data/gameover.png");
+		paused = getImage(base, "data/paused.png");
+
+		try {
+			loadBestPlayer();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
@@ -115,34 +130,36 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		while (true) {
 
 			do {
-				if (!isStoped) {
+				if (!pacmanIsDead) {
 					level++;
 					level = (level == 11) ? 1 : level;
 					loadMap(level);
-
+					
 					while (points.size() != 0 && lives != 0) {
-						pacman.update();
-						for (int i = 0; i < ghosts.size(); i++) {
-							Ghost gh = (Ghost) ghosts.get(i);
-
-							gh.update(pacman.getCenterX(),// collision
-									pacman.getCenterY());// with border
-
-							gh.ghostCollision(ghosts, blocks, i,
-									pacman.getCenterX(), pacman.getCenterY());
-
-							if (pacman.getRect().intersects(gh.getRect())) {// pacmans
-																			// death
-								reloadLevel(ghosts);
+						if(!pause){
+							pacman.update();
+							for (int i = 0; i < ghosts.size(); i++) {
+								Ghost gh = (Ghost) ghosts.get(i);
+	
+								gh.update(pacman.getCenterX(),// collision
+										pacman.getCenterY());// with border
+	
+								gh.ghostCollision(ghosts, blocks, i,
+										pacman.getCenterX(), pacman.getCenterY());
+	
+								if (pacman.getRect().intersects(gh.getRect())) {// pacmans
+																				// death
+									reloadLevel(ghosts);
+								}
+	
 							}
-
+	
+							animate();// set currentPacman and give shut pacman when
+										// he
+										// stoped
+							pacmanPointColision();
+							pacmanBlockColision();
 						}
-
-						animate();// set currentPacman and give shut pacman when
-									// he
-									// stoped
-						pacmanPointColision();
-						pacmanBlockColision();
 						repaint();
 
 						try {
@@ -153,11 +170,21 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 					}
 				}
 			} while (lives != 0);
-			isStoped = true;
-			currentPacman = deathPacman;
+			pacmanIsDead = true;
+			currentPacman = deadPacman;
 			repaint();
-			// System.out.println("game over");
 
+			if (bestPlayer == null && score == bestScore) {
+				bestPlayer = JOptionPane.showInputDialog("enter your nickname");
+				if(bestPlayer != null){
+					try {
+						writeBestPlayer();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 	}
 
@@ -250,11 +277,20 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		}
 
 		for (int i = 0; i < lives; i++) {
-			g.drawImage(deathPacman2, 600 + (i * 30), 484, this);
+			g.drawImage(deadPacman2, 600 + (i * 30), 484, this);
 
 		}
 		g.drawImage(currentPacman, pacman.getCenterX(), pacman.getCenterY(),
 				this);
+		
+		if(pacmanIsDead){
+			pause = false;
+			g.drawImage(gameOver,0,0,this);
+		}
+		
+		if(pause){
+			g.drawImage(paused,0,0,this);
+		}
 
 	}
 
@@ -333,7 +369,9 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			case KeyEvent.VK_R:
 				restartGame();
 				break;
-
+			case KeyEvent.VK_P:
+				pause = (pause)?false:true;
+				break;
 			}
 		}
 
@@ -391,10 +429,10 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 					&& pacman.getCenterY() == p.getY()) {
 				points.remove(i);
 				score += 1;
-				
+
 			}
 		}
-		
+
 		if (score > bestScore) {
 			bestScore = score;
 			bestPlayer = null;
@@ -513,8 +551,28 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		level = 0;
 		score = 0;
 		lives = startLives;
-		isStoped = false;
+		pacmanIsDead = false;
+		pause = false;
+		//currentPacman = animRight.getImage(0);
 		points.clear();
 
+	}
+
+	public void loadBestPlayer() throws IOException {
+		BufferedReader fo = new BufferedReader(new FileReader(
+				"data/bestplayer.txt"));
+		bestPlayer = fo.readLine();
+		String a = fo.readLine();
+		bestScore = Integer.parseInt(a);
+		fo.close();
+	}
+
+	public void writeBestPlayer() throws IOException {
+		 PrintWriter out
+		   = new PrintWriter(new BufferedWriter(new FileWriter("data/bestplayer.txt")));
+		out.println(bestPlayer);
+		out.println(bestScore);
+		out.close();
+		
 	}
 }

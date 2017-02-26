@@ -3,6 +3,7 @@ package pacman;
 import pacman.framework.Animation;
 import java.applet.Applet;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -26,7 +27,9 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	private Animation animRight, animUp, animLeft, animDown;
 	private boolean isStoped = false;
 	private int startLives = 4;
-	private int animSpeed = 5, score = 0, level = 0, lives = startLives;
+	private int animSpeed = 5, score = 0, bestScore = 12, level = 0,
+			lives = startLives;
+	private String bestPlayer="men";
 	private ArrayList<Point> points = new ArrayList<Point>();
 	private ArrayList<Block> blocks = new ArrayList<Block>();
 	private ArrayList<Ghost> ghosts = new ArrayList<Ghost>();
@@ -36,6 +39,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 		setSize(720, 510);// 24[720px]_16[480px]|
 		setBackground(Color.black);
+
 		setFocusable(true);
 		addKeyListener(this);
 		Frame frame = (Frame) this.getParent().getParent();
@@ -138,7 +142,6 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 									// he
 									// stoped
 						pacmanPointColision();
-						System.out.println(score);
 						pacmanBlockColision();
 						repaint();
 
@@ -217,15 +220,20 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	@Override
 	public void paint(Graphics g) {
+		g.setFont(new Font("Ubuntu", Font.BOLD, 14));
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(0, 480, 720, 30);
-		/*
+
 		g.setColor(Color.white);
-		g.fillRect(25, 485, 120, 20);
+		g.fillRect(25, 485, 140, 20);
+		g.fillRect(170, 485, 135, 20);
+		g.fillRect(310, 485, 125, 20);
 
 		g.setColor(Color.black);
-		g.drawString("Meny", 30, 500);
-		*/
+		g.drawString((bestPlayer == null) ? "Not set" : bestPlayer, 30, 500);
+		g.drawString("Record: " + bestScore, 175, 500);
+		g.drawString("Score: " + score, 315, 500);
+
 		for (int i = 0; i < points.size(); i++) {
 			Point p = (Point) points.get(i);
 			g.drawImage(point, p.getX() + 7, p.getY() + 7, this);
@@ -383,7 +391,13 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 					&& pacman.getCenterY() == p.getY()) {
 				points.remove(i);
 				score += 1;
+				
 			}
+		}
+		
+		if (score > bestScore) {
+			bestScore = score;
+			bestPlayer = null;
 		}
 	}
 

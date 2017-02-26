@@ -1,5 +1,7 @@
 package pacman;
 
+import java.util.ArrayList;
+
 public class Pacman {
 	private int centerX = 0;
 	private int centerY = 0;
@@ -8,65 +10,146 @@ public class Pacman {
 	private int speedY = 0;
 	private int direction = 0;// 0-nothing; 1-up; 2-down; 3-left; 4-right
 	private int changeDirection = 0;// 0-nothing; 1-up; 2-down; 3-left; 4-right
+	public boolean wait = false;
 
 	public void update() {
 
 		centerX += speedX;
 		centerY += speedY;
 
-			if (centerY + speedY >= 451) {
-				centerY = 450;
-				this.stop();
-			}
-			if (centerY + speedY <= -1) {
-				centerY = 0;
-				this.stop();
-			}
-			if (centerX + speedX <= -1) {
-				centerX = 0;
-				this.stop();
-			}
-			if (centerX + speedX >= 691) {
-				centerX = 690;
-				this.stop();
-			}
+		if (centerY + speedY >= 451) {
+			centerY = 450;
+			this.stop();
+		}
+		if (centerY + speedY <= -1) {
+			centerY = 0;
+			this.stop();
+		}
+		if (centerX + speedX <= -1) {
+			centerX = 0;
+			this.stop();
+		}
+		if (centerX + speedX >= 691) {
+			centerX = 690;
+			this.stop();
+		}
 
 	}
 
-	public void changeDirection() {
+	public void changeDirection(ArrayList<Block> blocks) {
 		if (this.getDirection() != this.getChangeDirection()) {
 			if (this.getCenterX() % 30 == 0 && this.getCenterY() % 30 == 0) {
 				switch (this.getChangeDirection()) {
-				case 1://up
-				if(centerY!=0){
-					this.stop();
-					this.setDirection(1);
-					this.moveUp();
-				}
+				case 1:// up
+					wait = false;
+					for (int i = 0; i < blocks.size(); i++) {
+						Block b = (Block) blocks.get(i);
+						if ((getCenterX() == b.getX() && getCenterY() - 30 == b
+								.getY()) || getCenterY() == 0) {
+							wait = true;
+						}
+					}
+					if (!wait) {
+						this.stop();
+						this.setDirection(1);
+						this.moveUp();
+					}
 					break;
-				case 2://down
-				if(centerY!=450){
-					this.stop();
-					this.setDirection(2);
-					this.moveDown();
-				}
+
+				case 2:// down
+					wait = false;
+					for (int i = 0; i < blocks.size(); i++) {
+						Block b = (Block) blocks.get(i);
+						if ((getCenterX() == b.getX() && getCenterY() + 30 == b
+								.getY()) || getCenterY() == 450) {
+							wait = true;
+						}
+					}
+					if (!wait) {
+						this.stop();
+						this.setDirection(2);
+						this.moveDown();
+					}
 					break;
-				case 3://left
-				if(centerX!=0){
-					this.stop();
-					this.setDirection(3);
-					this.moveLeft();
-				}
+
+				case 3:// left
+					wait = false;
+					for (int i = 0; i < blocks.size(); i++) {
+						Block b = (Block) blocks.get(i);
+						if ((getCenterX() - 30 == b.getX() && getCenterY() == b
+								.getY()) || getCenterX() == 0) {
+							wait = true;
+						}
+					}
+					if (!wait) {
+						this.stop();
+						this.setDirection(3);
+						this.moveLeft();
+					}
 					break;
-				case 4://right
-				if(centerX!=690){
-					this.stop();
-					this.setDirection(4);
-					this.moveRight();
-				}
+
+				case 4:// right
+					wait = false;
+					for (int i = 0; i < blocks.size(); i++) {
+						Block b = (Block) blocks.get(i);
+						if ((getCenterX() + 30 == b.getX() && getCenterY() == b
+								.getY()) || getCenterX() == 690) {
+							wait = true;
+						}
+					}
+					if (!wait) {
+						this.stop();
+						this.setDirection(4);
+						this.moveRight();
+					}
 					break;
 				}
 			}
+		}
+	}
+
+	public void blockCollision(ArrayList<Block> blocks){
+		if (this.getCenterX() % 30 == 0 && this.getCenterY() % 30 == 0) {
+			switch(getDirection()){
+				case 1://up
+					for (int i = 0; i < blocks.size(); i++) {
+						Block b = (Block) blocks.get(i);
+						if (getCenterX() == b.getX() && getCenterY()-30 == b
+								.getY()) {
+							this.stop();
+						}
+					}
+					break;
+
+				case 2://down
+				for (int i = 0; i < blocks.size(); i++) {
+						Block b = (Block) blocks.get(i);
+						if (getCenterX() == b.getX() && getCenterY()+30 == b
+								.getY()) {
+							this.stop();
+						}
+					}
+					break;
+				case 3://left
+				for (int i = 0; i < blocks.size(); i++) {
+						Block b = (Block) blocks.get(i);
+						if (getCenterX()-30 == b.getX() && getCenterY() == b
+								.getY()) {
+							this.stop();
+						}
+					}
+					break;
+				case 4://right
+				for (int i = 0; i < blocks.size(); i++) {
+						Block b = (Block) blocks.get(i);
+						if (getCenterX()+30 == b.getX() && getCenterY() == b
+								.getY()) {
+							this.stop();
+						}
+					}
+					break;
+			}
+
 		}
 	}
 

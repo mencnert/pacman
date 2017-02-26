@@ -98,6 +98,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 					case 'B':// block
 						addBlock(j * 30, i * 30);
+						System.out.println(j*30 + " " + i *30);
 						break;
 
 					case '-':// nothing
@@ -124,7 +125,12 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}/*
+		for (int i = 0; i < blocks.size(); i++) {
+			Block b = (Block) blocks.get(i);
+			System.out.println(b.getX() + " " + b.getY());
+			
+		}*/
 
 	}
 
@@ -151,12 +157,11 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			pacman.update();
 			animate();// set currentPacman and give shut pacman when he stoped
 			pacmanPointColision();
+			pacmanBlockColision();
 			repaint();
 
-			pacman.changeDirection();
-			System.out.println(score);
-			// System.out.println(pacman.getCenterX() + " " +
-			// pacman.getCenterY());
+			//System.out.println(score);
+			//System.out.println(pacman.getCenterX() + " " +pacman.getCenterY());
 			try {
 				Thread.sleep(17);
 			} catch (InterruptedException e) {
@@ -351,4 +356,9 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		}
 	}
 
+	public void pacmanBlockColision() {
+		pacman.changeDirection(blocks);
+		pacman.blockCollision(blocks);
+		
+	}
 }

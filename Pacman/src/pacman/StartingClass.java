@@ -155,11 +155,23 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	public void run() {
 		while (true) {
 			pacman.update();
-			for (int i = 0; i < ghosts.size(); i++) {
+			for (int i = 0; i < ghosts.size(); i++) {//po vytvoreni kolize ducha s duchy prestala hra cist ovladani pacmana
 				Ghost gh = (Ghost) ghosts.get(i);
-				gh.update(pacman.getCenterX(), pacman.getCenterY());// collision with border
-				gh.blockCollision(blocks, pacman.getCenterX(),//collision with blocks
-						pacman.getCenterY());
+				gh.update(pacman.getCenterX(), pacman.getCenterY());// collision
+																	// with
+																	// border
+				for (int j = 0; j < ghosts.size(); j++) {
+					Ghost gh2 = (Ghost) ghosts.get(j);
+					if (i != j) {
+						gh.ghostCollision(pacman.getCenterX(),
+								pacman.getCenterY(), gh2);
+					}
+
+				}
+
+				gh.blockCollision(blocks, pacman.getCenterX(),// collision with
+																// blocks
+						pacman.getCenterY(), ghosts);
 			}
 
 			animate();// set currentPacman and give shut pacman when he stoped
@@ -379,7 +391,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			if (pacman.getCenterX() == p.getX()
 					&& pacman.getCenterY() == p.getY()) {
 				points.remove(i);
-				score += 10;
+				score += 1;
 			}
 		}
 	}

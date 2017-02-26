@@ -19,11 +19,14 @@ import java.util.ArrayList;
 public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	private Pacman pacman;
-	private Image image, currentPacman, point, ghost, block;
+	private Image image, currentPacman, deathPacman, deathPacman2, point,
+			ghost, block;
 	private Graphics second;
 	private URL base;
 	private Animation animRight, animUp, animLeft, animDown;
-	private int animSpeed = 5, score = 0, level = 1;
+	private boolean isStoped = false;
+	private int startLives = 4;
+	private int animSpeed = 5, score = 0, level = 0, lives = startLives;
 	private ArrayList<Point> points = new ArrayList<Point>();
 	private ArrayList<Block> blocks = new ArrayList<Block>();
 	private ArrayList<Ghost> ghosts = new ArrayList<Ghost>();
@@ -31,7 +34,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	@Override
 	public void init() {
 
-		setSize(720, 500);// 24[720px]_16[480px]|
+		setSize(720, 510);// 24[720px]_16[480px]|
 		setBackground(Color.black);
 		setFocusable(true);
 		addKeyListener(this);
@@ -82,7 +85,8 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		point = getImage(base, "data/point.png");
 		block = getImage(base, "data/block.png");
 		ghost = getImage(base, "data/ghost.png");
-
+		deathPacman = getImage(base, "data/deathpacman.png");
+		deathPacman2 = getImage(base, "data/deathpacman2.png");
 	}
 
 	@Override
@@ -104,35 +108,53 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	@Override
 	public void run() {
-		loadMap(((level % 10) != 0) ? level % 10 : 10);
-
 		while (true) {
-			pacman.update();
-			for (int i = 0; i < ghosts.size(); i++) {
-				Ghost gh = (Ghost) ghosts.get(i);
 
-				gh.update(pacman.getCenterX(),// collision
-						pacman.getCenterY());// with border
+			do {
+				if (!isStoped) {
+					level++;
+					level = (level == 11) ? 1 : level;
+					loadMap(level);
 
-				gh.ghostCollision(ghosts, blocks, i, pacman.getCenterX(),
-						pacman.getCenterY());
+					while (points.size() != 0 && lives != 0) {
+						pacman.update();
+						for (int i = 0; i < ghosts.size(); i++) {
+							Ghost gh = (Ghost) ghosts.get(i);
 
-				if (pacman.getRect().intersects(gh.getRect())) {// pacmans death
-					reloadLevel(ghosts);
+							gh.update(pacman.getCenterX(),// collision
+									pacman.getCenterY());// with border
+
+							gh.ghostCollision(ghosts, blocks, i,
+									pacman.getCenterX(), pacman.getCenterY());
+
+							if (pacman.getRect().intersects(gh.getRect())) {// pacmans
+																			// death
+								reloadLevel(ghosts);
+							}
+
+						}
+
+						animate();// set currentPacman and give shut pacman when
+									// he
+									// stoped
+						pacmanPointColision();
+						System.out.println(score);
+						pacmanBlockColision();
+						repaint();
+
+						try {
+							Thread.sleep(17);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
 				}
-
-			}
-
-			animate();// set currentPacman and give shut pacman when he stoped
-			pacmanPointColision();
-			pacmanBlockColision();
+			} while (lives != 0);
+			isStoped = true;
+			currentPacman = deathPacman;
 			repaint();
+			// System.out.println("game over");
 
-			try {
-				Thread.sleep(17);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
@@ -195,7 +217,15 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	@Override
 	public void paint(Graphics g) {
+		g.setColor(Color.LIGHT_GRAY);
+		g.fillRect(0, 480, 720, 30);
+		/*
+		g.setColor(Color.white);
+		g.fillRect(25, 485, 120, 20);
 
+		g.setColor(Color.black);
+		g.drawString("Meny", 30, 500);
+		*/
 		for (int i = 0; i < points.size(); i++) {
 			Point p = (Point) points.get(i);
 			g.drawImage(point, p.getX() + 7, p.getY() + 7, this);
@@ -206,16 +236,17 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			g.drawImage(block, b.getX(), b.getY(), this);
 		}
 
-		g.drawImage(currentPacman, pacman.getCenterX(), pacman.getCenterY(),
-				this);
-
 		for (int i = 0; i < ghosts.size(); i++) {
 			Ghost gh = (Ghost) ghosts.get(i);
 			g.drawImage(ghost, gh.getCenterX(), gh.getCenterY(), this);
-			// g.drawRect(gh.getCenterX(), gh.getCenterY(), 30, 30);
-			// g.drawRect(pacman.getCenterX() + 9, pacman.getCenterY() + 9, 12,
-			// 12);
 		}
+
+		for (int i = 0; i < lives; i++) {
+			g.drawImage(deathPacman2, 600 + (i * 30), 484, this);
+
+		}
+		g.drawImage(currentPacman, pacman.getCenterX(), pacman.getCenterY(),
+				this);
 
 	}
 
@@ -250,7 +281,9 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 					pacman.moveRight();
 				}
 				break;
-
+			case KeyEvent.VK_R:
+				restartGame();
+				break;
 			}
 
 			for (int i = 0; i < ghosts.size(); i++) {
@@ -288,6 +321,9 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 			case KeyEvent.VK_RIGHT:
 				pacman.setChangeDirection(4);
+				break;
+			case KeyEvent.VK_R:
+				restartGame();
 				break;
 
 			}
@@ -357,6 +393,10 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	}
 
 	public void loadMap(int level) {
+		blocks.clear();
+		points.clear();
+		ghosts.clear();
+		pacman = null;
 		try {
 			BufferedReader fo = new BufferedReader(new FileReader("maps/"
 					+ level + ".txt"));
@@ -441,11 +481,26 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	}
 
 	public void reloadLevel(ArrayList<Ghost> ghosts) {
-		pacman.setPacmanToStartingPosition();
-		for (int i = 0; i < ghosts.size(); i++) {
-			Ghost gh = (Ghost) ghosts.get(i);
-			gh.setGhostToStartingPosition();
-			gh.chooseStartingDirection(pacman.getCenterX(), pacman.getCenterY());
+		lives--;
+		if (lives != 0) {
+			pacman.setPacmanToStartingPosition();
+
+			for (int i = 0; i < ghosts.size(); i++) {
+				Ghost gh = (Ghost) ghosts.get(i);
+				gh.setGhostToStartingPosition();
+				gh.chooseStartingDirection(pacman.getCenterX(),
+						pacman.getCenterY());
+
+			}
 		}
+	}
+
+	public void restartGame() {
+		level = 0;
+		score = 0;
+		lives = startLives;
+		isStoped = false;
+		points.clear();
+
 	}
 }

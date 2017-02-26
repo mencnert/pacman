@@ -157,11 +157,15 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			pacman.update();
 			for (int i = 0; i < ghosts.size(); i++) {
 				Ghost gh = (Ghost) ghosts.get(i);
+				//gh.isStoped();
 				gh.update(pacman.getCenterX(),// collision
 						pacman.getCenterY());// with border
+				
+				gh.ghostCollision(ghosts, i, pacman.getCenterX(),
+						pacman.getCenterY());
 				gh.blockCollision(blocks, pacman.getCenterX(),
 						pacman.getCenterY());
-
+				
 			}
 
 			animate();// set currentPacman and give shut pacman when he stoped

@@ -61,10 +61,10 @@ public class Pacman {
 	public void changeDirection(ArrayList<Block> blocks) {
 		if (this.getDirection() != this.getChangeDirection()) {
 			if (this.getCenterX() % 30 == 0 && this.getCenterY() % 30 == 0) {
-				// if pacman wanna turn and at his way is block
-				// he have to wait and continue in direction
-				// until his way is clear for change direction
-				// which he want
+				// if pacman want to turn and a Block is in his way
+				// he has to wait and continue in the direction
+				// until the way is clear so he can change into the direction
+				// he wants to go
 				switch (this.getChangeDirection()) {
 				case 1:// up
 					wait = false;
@@ -127,7 +127,7 @@ public class Pacman {
 					}
 					break;
 				}// end switch
-			} // end if for x%30 &y%30
+			} // end if for x%30 & y%30
 		}
 	}
 

@@ -22,34 +22,36 @@ public class Animation {
 
 	public synchronized void addFrame(Image image, long duration) {
 		// each image may have different duration(trvani)
-		// totalDuration is only for one animation
+		// each animation has its own totalDuration
 		totalDuration += duration;
 		frames.add(new AnimFrame(image, totalDuration));
-		// AnimFrame is class where is image and respective duration
-		// declared like endTime
+		// AnimFrame is a class that contains an image and its respective
+		// duration
+		// declared as endTime
 	}
 
 	public synchronized void update(long elapsedTime) {
-		// time which have to elapse(uplynout)
-		// frames is ArrayList of AnimFrames
+		// time which has to elapse(uplynout)
+		// variable frames is ArrayList of AnimFrames
 		if (frames.size() > 1) {
 			animTime += elapsedTime;
-			// animation have to loop
+			// animation has to loop
 			if (animTime >= totalDuration) {
-				// for better synchronizing if duration of last frame is over
+				// for better synchronizing if the duration of last frame is
+				// over
 				animTime = animTime % totalDuration;
 				currentFrame = 0;
 			}
 
 			while (animTime > getFrame(currentFrame).endTime) {
 				// if duration of currentFrame is over
-				// it set next frame like currentFrame
+				// it sets next frame as currentFrame
 				currentFrame++;
 			}
 		}
 	}
 
-	// overloaded method if I wanna current image of animation
+	// overloaded method get current animation image
 	public synchronized Image getImage() {
 		if (frames.size() == 0) {
 			return null;
@@ -58,7 +60,7 @@ public class Animation {
 		}
 	}
 
-	// overloaded method if I wanna specific image
+	// overloaded method get specific image
 	public synchronized Image getImage(int frame) {
 		if (frames.size() == 0) {
 			return null;
@@ -72,7 +74,7 @@ public class Animation {
 	}
 
 	// image with duration
-	// image with endTime of totalDuration in animation
+	// image with endTime of totalDuration of animation
 	public class AnimFrame {
 		Image image;
 		long endTime;

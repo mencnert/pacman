@@ -55,7 +55,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			// TODO: handle exception
 		}
 
-		// Image Setups
+		// Image Setup
 		animRight = new Animation();
 		animUp = new Animation();
 		animLeft = new Animation();
@@ -97,8 +97,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		block4 = getImage(base, "data/block4.png");
 		ghost = getImage(base, "data/ghost.png");
 		deadPacman = getImage(base, "data/deadpacman.png");
-		// for paint lives in right down corner
-		deadPacman2 = getImage(base, "data/deadpacman2.png");
+		deadPacman2 = getImage(base, "data/deadpacman2.png");// lives
 		gameOver = getImage(base, "data/gameover.png");
 		paused = getImage(base, "data/paused.png");
 
@@ -129,7 +128,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	@Override
 	public void run() {
-		while (true) {// infinity game loop
+		while (true) {// infinit game loop
 			do {
 				if (!pacmanIsDead) {
 					level++;
@@ -146,14 +145,13 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 										pacman.getCenterY());// with border
 
 								gh.ghostCollision(ghosts, blocks, i, pacman.getCenterX(), pacman.getCenterY());
-								// pacmans death
+								// pacman's death
 								if (pacman.getRect().intersects(gh.getRect())) {
 									reloadLevel();
 								}
 							}
 
-							animate();// set currentPacman and give shut pacman
-										// when he stop();
+							animate();// set currentPacman
 							pacmanPointCollision();
 							pacmanBlockCollision();
 						} // endif pause
@@ -168,9 +166,9 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 				}
 			} while (lives > 0);// game loop while pacman is alive
 
-			pacmanIsDead = true;// for paint gameOver img
+			pacmanIsDead = true;// paint() gameOver img
 			currentPacman = deadPacman;
-			if (!gameOverPlayed) {// play once time
+			if (!gameOverPlayed) {// play once
 				gameOverSound.play();
 				gameOverPlayed = true;
 			}
@@ -178,7 +176,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 			if (bestPlayer == null && score == bestScore) {
 				bestPlayer = JOptionPane.showInputDialog("enter your nickname");
-				if (bestPlayer != null) {// for cancel
+				if (bestPlayer != null) {// if cancel is pressed
 					bestPlayer = (bestPlayer.length() < 11) ? bestPlayer : bestPlayer.substring(0, 10);
 					bestPlayer = (bestPlayer.length() == 0) ? null : bestPlayer;
 				} else {
@@ -196,7 +194,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		}
 	}
 
-	public void animate() {// set currentPacman and give shut pacman
+	public void animate() {// set currentPacman and return shut pacman
 							// when he stop();
 		animRight.update(2);
 		animLeft.update(2);
@@ -301,7 +299,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (pacman.getDirection() == 0) {// for start game
+		if (pacman.getDirection() == 0) {// start game
 			switch (e.getKeyCode()) {
 			case KeyEvent.VK_UP:
 				if (pacman.getCanUp()) {
@@ -496,7 +494,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		}
 
 		Rectangle pacmanRect = new Rectangle(0, 0, 0, 0);
-		// finding direction where pacman can
+		// searching direction where pacman can
 		// only for start
 		for (int i = 0; i < blocks.size(); i++) {
 			Block block = (Block) blocks.get(i);
@@ -542,7 +540,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		pacmanIsDead = false;
 		pause = false;
 		gameOverPlayed = false;
-		points.clear();// this break the level loop in run()
+		points.clear();// this breaks the level loop in run()
 	}
 
 	public void loadBestPlayer() throws IOException {

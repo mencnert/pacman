@@ -154,8 +154,8 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 							animate();// set currentPacman and give shut pacman
 										// when he stop();
-							pacmanPointColision();
-							pacmanBlockColision();
+							pacmanPointCollision();
+							pacmanBlockCollision();
 						} // endif pause
 						repaint();
 
@@ -178,7 +178,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 			if (bestPlayer == null && score == bestScore) {
 				bestPlayer = JOptionPane.showInputDialog("enter your nickname");
-				if (bestPlayer != null) {//for cancel
+				if (bestPlayer != null) {// for cancel
 					bestPlayer = (bestPlayer.length() < 11) ? bestPlayer : bestPlayer.substring(0, 10);
 					bestPlayer = (bestPlayer.length() == 0) ? null : bestPlayer;
 				} else {
@@ -330,6 +330,9 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			case KeyEvent.VK_R:
 				restartGame();
 				break;
+			case KeyEvent.VK_P:
+				pause = (pause) ? false : true;
+				break;
 			// cheats
 			case KeyEvent.VK_J:// go to next level
 				points.clear();
@@ -376,7 +379,6 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			case KeyEvent.VK_P:
 				pause = (pause) ? false : true;
 				break;
-			// cheat
 			}
 		}
 	}
@@ -407,7 +409,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		ghosts.add(gh);
 	}
 
-	public void pacmanPointColision() {
+	public void pacmanPointCollision() {
 		for (int i = 0; i < points.size(); i++) {
 			Point p = (Point) points.get(i);
 			if (pacman.getCenterX() == p.getX() && pacman.getCenterY() == p.getY()) {
@@ -423,7 +425,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		}
 	}
 
-	public void pacmanBlockColision() {
+	public void pacmanBlockCollision() {
 		pacman.changeDirection(blocks);
 		pacman.blockCollision(blocks);
 	}
